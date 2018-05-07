@@ -4,7 +4,9 @@ url = "http://www.hardmob.com.br/educacao-and-profissoes/585514-clube-da-luta-co
 topico = requests.get(url)
 soup = BeautifulSoup(topico.text, 'html.parser')
 posts = soup.find_all('li', class_="postcontainer")
-documento = []
+lista_posts = []
+#teste = re.search(r'^Pagina 1 de [0-9]+$', posts.text.encode('iso-8859-1'))
+#print(teste)
 for post in posts:
     soup = BeautifulSoup(str(post), 'html.parser')
     texto_verdinhas = soup.find('div', class_="vbseo_liked")
@@ -12,18 +14,25 @@ for post in posts:
     if verdinhas != None:
         verdinhas = int(verdinhas.group(1))+3
         if verdinhas > 10:
-            autor = str( soup.find('a', class_="username").find('strong').text )            
-            data = str( soup.find('span', class_="date").text)
-            link = str(soup.find('span', class_="nodecontrols").find('a'))
-            cabecalho = 'Autor: {autor} Verdinhas: {verdinhas} Data: {data}'.format(autor=autor, verdinhas=verdinhas, data=data)
-            texto_post = str(soup.find('div', class_="content"))
-            html = '{cabecalho}<br>{link}<br>{post}'.format(cabecalho=cabecalho, link=link, post=texto_post)
-            documento.append(html)
+            autor = soup.find('a', class_="username").find('strong').text.encode('iso-8859-1')            
+            data = soup.find('span', class_="date").text.encode('iso-8859-1')
+            #link = soup.find('span', class_="nodecontrols").find('a').get('href').encode('iso-8859-1')
 
-with open('documento.html', 'wb') as doc:
-    pickle.dump(documento, doc)
-webbrowser.open("documento.html")    
+            cabecalho = '<p><b>Autor:</b> {autor} <b>Verdinhas:</b> {verdinhas} <b>Data:</b> {data}</p>'\
+                        .format(autor=autor, verdinhas=verdinhas, data=data)
+
+            texto_post = soup.find('div', class_="content").encode('iso-8859-1')
+            html = '{cabecalho}<p>{post}</p>'.format(cabecalho=cabecalho, post=texto_post)
+            lista_posts.append(html)
+
+documento_html = open('documento.html', 'w')
+for post in lista_posts:
+  documento_html.write("%s\n" % post)
+webbrowser.open("documento.html")      
+#with open('documento.html', 'wb') as doc:
+#    pickle.dump(documento, doc)
             #print(texto_post)
     #mais 18</a
     #print(texto_verdinhas)
     #print(post)
+#Página 1 de 13    
