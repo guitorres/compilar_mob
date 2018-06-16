@@ -1,7 +1,7 @@
 from bs4 import BeautifulSoup
 import requests, re, pickle, webbrowser, sys
 from optparse import OptionParser
-#argumentos
+
 parser = OptionParser()
 parser.add_option("-t", "--topico")
 parser.add_option("-v", "--verdinhas", default=10)
@@ -14,15 +14,14 @@ topico = requests.get(options.topico)
 paginas = int(options.pagina_final)
 if paginas == 0:
     paginas =int(re.search('1 de (.*?)</a>', topico.text).group(1))
-
-
 arquivo = 'saida.html'
-arquivo_saida = open(arquivo, 'w')
-arquivo_saida.write('<!DOCTYPE html> <html> <head><meta charset="UTF-8"/> <title>Teste</title> <style> *{{font-size:{fonte}pt}} </style></head>'.format(fonte=options.fonte))
+arquivo_saida = open(arquivo, 'w', encoding='utf-8')
+arquivo_saida.write('<!DOCTYPE html> <html> <head><meta charset="utf-8"/> <title>Teste</title> <style> *{{font-size:{fonte}pt}} </style></head>'.format(fonte=options.fonte))
 
 for pagina in range(int(options.pagina_inicial), paginas+1):
     url_pagina = options.topico.replace('.html', '-{}.html'.format(pagina) )
-    posts = BeautifulSoup(requests.get(url_pagina).text, 'html.parser').find_all('li', class_="postcontainer")
+    html_pagina = requests.get(url_pagina)
+    posts = BeautifulSoup(html_pagina.text, 'html.parser').find_all('li', class_="postcontainer")
     melhores_posts = []
     for post in posts:
         soup = BeautifulSoup(str(post), 'html.parser')
@@ -42,12 +41,10 @@ for pagina in range(int(options.pagina_inicial), paginas+1):
             autor = autor.find('strong').text
             cabecalho = '<p><b>Autor:</b> {autor} <b>Verdinhas:</b> {verdinhas}</p>'.format(autor=autor, verdinhas=verdinhas)
 
-            paragrafo_post = '<p>{}</p>'.format(soup.find('div', class_="content"))
+            paragrafo_post = '<p>{}</p>'.format(soup.find('div', class_="content").prettify())
             html = '<hr> {cabecalho} {post}'.format(cabecalho=cabecalho, post=paragrafo_post)
             melhores_posts.append(html)                
-
     for post in melhores_posts:            
-        arquivo_saida.write("{}\n".format(post))
-
+        arquivo_saida.write("{}\n".format(post.encode('utf-8').decode('utf-8')))
 arquivo_saida.write("</html>")        
 webbrowser.open(arquivo)      
