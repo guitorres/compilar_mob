@@ -45,6 +45,6 @@ for pagina in range(int(options.pagina_inicial), paginas+1):
             html = '<hr> {cabecalho} {post}'.format(cabecalho=cabecalho, post=paragrafo_post)
             melhores_posts.append(html)                
     for post in melhores_posts:            
-        arquivo_saida.write("{}\n".format(post.encode('utf-8').decode('utf-8')))
+        arquivo_saida.write("{}\n".format(post.encode('utf-8', 'ignore').decode('utf-8')))
 arquivo_saida.write("</html>")        
 webbrowser.open(arquivo)      
